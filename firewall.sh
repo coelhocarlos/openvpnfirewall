@@ -55,7 +55,7 @@ iptables -A OUTPUT -o enp2s0  -p tcp --sport 22 -m state --state ESTABLISHED -j 
 
 # Redirect 8080 to 80
 iptables -A INPUT -i enp2s0 -p tcp --dport 80 -j ACCEPT
-iptables -A INPUT -i enp2s0 -p tcp --dport 8080 -j ACCEPT
+iptables -A INPUT -i enp2s0 -p tcp --dport 8585 -j ACCEPT
 iptables -A PREROUTING -t nat -i enp2s0 -p tcp --dport 8585 -j REDIRECT --to-port 80
 
 # Allow incoming Samba
