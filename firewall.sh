@@ -55,10 +55,15 @@ iptables -A OUTPUT -o enp2s0  -p tcp --sport 22 -m state --state ESTABLISHED -j 
 
 
 # Allow incoming Samba
-iptables -A INPUT -i enp2s0 -s 10.1.1.0/24 -p udp --dport 137:138 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o enp2s0 -d 10.1.1.0/24 -p udp --sport 137:138 -m state --state ESTABLISHED -j ACCEPT
-iptables -A INPUT -i enp2s0 -s 10.1.1.0/24 -p tcp --dport 139 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o enp2s0 -d 10.1.1.0/24 -p tcp --sport 139 -m state --state ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT -p udp -m udp --dport 137 -j ACCEPT
+sudo iptables -A INPUT -p udp -m udp --dport 138 -j ACCEPT
+sudo iptables -A INPUT -p tcp -m tcp --dport 139 -j ACCEPT
+sudo iptables -A INPUT -p tcp -m tcp --dport 445 -j ACCEPT
+sudo iptables -A INPUT -s 192.168.0.0/24 -p udp -m udp --dport 137 -j ACCEPT
+sudo iptables -A INPUT -s 192.168.0.0/24 -p udp -m udp --dport 138 -j ACCEPT
+sudo iptables -A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 139 -j ACCEPT
+sudo iptables -A INPUT -s 192.168.0.0/24 -p tcp -m tcp --dport 445 -j ACCEPT
+
 
 #VPN
 iptables -A INPUT -i enp2s0 -m state --state NEW -p udp --dport 1194 -j ACCEPT
@@ -98,4 +103,3 @@ iptables -P OUTPUT  DROP
 
 sudo iptables-save > /etc/webmin/firewall/iptables.save
 sudo iptables-restore < /etc/webmin/firewall/iptables.save
-service iptables save
