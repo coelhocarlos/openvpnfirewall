@@ -53,6 +53,10 @@ iptables -A INPUT -p tcp -m tcp ---destination-port 25565 -j ACCEPT
 iptables -A INPUT -i enp2s0 -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -o enp2s0  -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 
+# Redirect 8080 to 80
+iptables -A INPUT -i enp2s0 -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -i enp2s0 -p tcp --dport 8080 -j ACCEPT
+iptables -A PREROUTING -t nat -i enp2s0 -p tcp --dport 8585 -j REDIRECT --to-port 80
 
 # Allow incoming Samba
 sudo iptables -A INPUT -p udp -m udp --dport 137 -j ACCEPT
