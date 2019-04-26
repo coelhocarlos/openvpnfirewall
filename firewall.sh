@@ -80,15 +80,10 @@ iptables -A OUTPUT -o tun+ -j ACCEPT
 #FTP
 #modprobe ip_conntrack
 #modprobe ip_conntrack_ftp
-iptables -t filter -A INPUT -i enp2s0 -p tcp -m multiport --dports 2121,20 -j ACCEPT
-iptables -t filter -A INPUT -i enp2s0 -p udp -m multiport --sports 2121,20 -j ACCEPT
-iptables -t filter -A INPUT -i enp2s0 -p tcp -m multiport --dports 21,20 -j ACCEPT
-iptables -t filter -A INPUT -i enp2s0 -p udp -m multiport --sports 21,20 -j ACCEPT
-iptables -A FORWARD -i tun0 -o enp2s0 -p tcp --dport 2121 -j ACCEPT
-iptables -A FORWARD -i enp2s0 -o tun0 -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables -A FORWARD -i tun0 -o enp2s0 -p tcp -m state --state ESTABLISHED -j ACCEPT
-
-
+#modprobe ip_conntrack_ftp
+#modprobe ip_nat_ftp
+iptables -A PREROUTING -t raw -p tcp --dport 2121 -d 192.168.0.50 -j CT --helper ftp
+iptables -t nat -A PREROUTING -p tcp --destination-port 20:2121 -i enp2s0 -j DNAT --to-destination 192.168.0.50
 # Ignora pings
 echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
 
