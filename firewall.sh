@@ -77,6 +77,21 @@ iptables -A FORWARD -i tun+ -o enp2s0 -m state --state RELATED,ESTABLISHED -j AC
 iptables -A FORWARD -i enp2s0 -o tun+ -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o enp2s0 -j MASQUERADE
 iptables -A OUTPUT -o tun+ -j ACCEPT
+#FTP
+modprobe ip_conntrack
+modprobe ip_conntrack_ftp
+iptables -t filter -A INPUT -i enp2s0 -p tcp -m multiport --dports 2121,20 -j ACCEPT
+iptables -t filter -A INPUT -i enp2s0 -p udp -m multiport --sports 2121,20 -j ACCEPT
+iptables -t filter -A INPUT -i enp2s0 -p tcp -m multiport --dports 21,20 -j ACCEPT
+iptables -t filter -A INPUT -i enp2s0 -p udp -m multiport --sports 21,20 -j ACCEPT
+iptables -A FORWARD -i tun0 -o enp2s0 -p tcp --dport 2121 -j ACCEPT
+iptables -A FORWARD -i eth0 -o tun0 -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -i tun0 -o enp2s0 -p tcp -m state --state ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp –sport 1024:65535 –dport 20 -m state –state ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp -m tcp –sport 1024:65535 –dport 21 -m state –state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp –sport 1024:65535 –dport 1024:65535 -m state –state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -p tcp –sport 20 –dport 1024:65535 -m state –state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -p tcp -m tcp -m multiport –sports 2121,1024:65535 –dport 1024:65535 -m state –state ESTABLISHED -j ACCEPT
 
 # Ignora pings
 echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
