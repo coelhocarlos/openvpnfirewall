@@ -78,8 +78,8 @@ iptables -A FORWARD -i enp2s0 -o tun+ -m state --state RELATED,ESTABLISHED -j AC
 iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o enp2s0 -j MASQUERADE
 iptables -A OUTPUT -o tun+ -j ACCEPT
 #FTP
-modprobe ip_conntrack
-modprobe ip_conntrack_ftp
+#modprobe ip_conntrack
+#modprobe ip_conntrack_ftp
 iptables -t filter -A INPUT -i enp2s0 -p tcp -m multiport --dports 2121,20 -j ACCEPT
 iptables -t filter -A INPUT -i enp2s0 -p udp -m multiport --sports 2121,20 -j ACCEPT
 iptables -t filter -A INPUT -i enp2s0 -p tcp -m multiport --dports 21,20 -j ACCEPT
