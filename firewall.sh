@@ -127,7 +127,7 @@ echo "Permitindo o estabelecimento de novas conexões iniciadas por você coraç
 iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED,NEW -j ACCEPT
 
-echo" Abre para a interface de loopback."
+echo "Abre para a interface de loopback."
 echo "Esta regra é essencial para o KDE e outros programas gráficos"
 echo "funcionarem adequadamente."
 # Abre para a interface de loopback.
@@ -136,7 +136,7 @@ echo "funcionarem adequadamente."
 iptables -A INPUT -p tcp --syn -s 127.0.0.1/255.0.0.0 -j ACCEPT
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-echo "# Ignorando qualquer pacote de entrada, vindo de qualquer endereço, a menos que especificado o contrário acima. Bloqueia tudo."
+echo "Ignorando qualquer pacote de entrada, vindo de qualquer endereço, a menos que especificado o contrário acima. Bloqueia tudo."
 # Ignora qualquer pacote de entrada, vindo de qualquer endereço, a menos que especificado o contrário acima. Bloqueia tudo.
 iptables -A INPUT -p tcp --syn -j DROP
 iptables -P INPUT DROP
