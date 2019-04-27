@@ -37,7 +37,7 @@ iptables -A INPUT -p tcp --destination-port 22 -j ACCEPT
 iptables -A INPUT -p tcp --destination-port 2121 -j ACCEPT
 iptables -A INPUT -p tcp --destination-port 53 -j ACCEPT
 iptables -A INPUT -p tcp --destination-port 80 -j ACCEPT
-iptables -A INPUT -p tcp --destination-port 443-j ACCEPT
+iptables -A INPUT -p tcp --destination-port 443 -j ACCEPT
 iptables -A INPUT -p tcp --destination-port 8080 -j ACCEPT
 iptables -A INPUT -p tcp --destination-port 8081 -j ACCEPT
 iptables -A INPUT -p tcp --destination-port 8082 -j ACCEPT
@@ -45,7 +45,7 @@ iptables -A INPUT -p tcp --destination-port 8083 -j ACCEPT
 iptables -A INPUT -p tcp --destination-port 8084 -j ACCEPT
 iptables -A INPUT -p tcp --destination-port 10000 -j ACCEPT
 iptables -A INPUT -p tcp --destination-port 11000 -j ACCEPT
-iptables -A INPUT -p tcp -m tcp ---destination-port 25565 -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --destination-port 25565 -j ACCEPT
 
 
 # Allow incoming SSH
@@ -93,7 +93,7 @@ iptables -A FORWARD -p tcp -m limit --limit 1/s -j ACCEPT
 iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A FORWARD -p tcp --tcp-flags SYN,ACK,FIN,RST RST -m limit --limit 1/s -j ACCEPT
 iptables -A FORWARD --protocol tcp --tcp-flags ALL SYN,ACK -j DROP
-iptables -A FORWARD -m unclean -j DROP
+#iptables -A FORWARD -m unclean -j DROP
 
 # Permite o estabelecimento de novas conexões iniciadas por você // coração do firewall //
 iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
