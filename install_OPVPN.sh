@@ -118,10 +118,10 @@ dh /etc/openvpn/certificados/dh1024.pem
 # para duas conexoes. Caso não necessite, remova esta entrada.
 #duplicate-cn
 # Informar qual IP para conexao tap, ou seja, o endereco IP para a VPN.
-ifconfig 10.0.0.1 255.255.255.0
+ifconfig 20.20.0.1 255.255.255.0
 # Informa qual range de endereços IP serao dinamicamente alocados pelas
 # conexoes dos clientes.
-ifconfig-pool 10.0.0.2 10.0.0.100 255.255.255.0
+ifconfig-pool 20.20.0.2 10.0.0.100 255.255.255.0
 # Configuração das rotas
 script-security 3 system
 up /etc/openvpn/rotas/up.sh
@@ -179,7 +179,7 @@ vim /etc/openvpn/rotas/down.sh
 O conteúdo desse arquivo deverá ser somente isso:
 
 #!/bin/sh
-ip route del 172.4.96.0/255.255.255.0 via 10.0.0.2
+ip route del 172.4.96.0/255.255.255.0 via 20.20.0.2
 Precisamos dar permissão de execução no script:
 
 chmod +x /etc/openvpn/rotas/down.sh
@@ -257,7 +257,7 @@ vim /etc/openvpn/rotas.up
 O conteúdo desse arquivo deverá ser somente isso:
 
 #!/bin/sh
-ip route add 192.168.0.0/255.255.255.0 via 10.0.0.1
+ip route add 192.168.0.0/255.255.255.0 via 20.20.0.1
 Precisamos dar permissão de execução no script:
 
 chmod +x /etc/openvpn/rotas.up
@@ -268,7 +268,7 @@ vim /etc/openvpn/rotas.down
 O conteúdo desse arquivo deverá ser somente isso:
 
 #!/bin/sh
-ip route del 192.168.0.0/255.255.255.0 via 10.0.0.1
+ip route del 192.168.0.0/255.255.255.0 via 20.20.0.1
 Precisamos dar permissão de execução no script:
 
 chmod +x /etc/openvpn/rotas.down
@@ -337,4 +337,4 @@ push "ping-restart 120"
 # Verbose mode
 verb 3
 # Rota
-route 192.168.0.0 255.255.255.0 10.0.0.1
+route 192.168.0.0 255.255.255.0 20.20.0.1
