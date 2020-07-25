@@ -1,0 +1,298 @@
+Introdução
+A tecnologia VPN permite conectar servidores VPN usando uma conexão criptografada e navegar na Internet anonimamente, mantendo seus dados de tráfego privados. O OpenVPN é uma solução de VPN (rede privada virtual) gratuita, de código aberto e mais usada. O OpenVPN permite criar uma rede local entre vários computadores em vários segmentos de rede. Você pode acessar os sistemas da empresa que existem na LAN a partir do local remoto. O OpenVPN implementa a extensão de rede segura OSI layer 2/3 usando o protocolo SSL / TLS. O OpenVPN permite que usuários remotos e filiais acessem aplicativos e recursos corporativos usando um túnel criptografado.
+
+Neste tutorial, explicaremos como criar uma VPN no Ubuntu 18.04 com OpenVPN.
+
+Pré-requisitos
+Um novo servidor Ubuntu 18.04 instalado no seu sistema.
+Um endereço IP estático 192.168.0.101 está configurado no seu servidor.
+Etapa 1: Introdução
+Antes de iniciar, você precisará habilitar o encaminhamento de IP para encaminhar os pacotes de rede corretamente. Você pode fazer isso editando/ etc / sysctl. conf Arquivo:
+
+nano / etc / sysctl. conf
+Mude a seguinte linha:
+
+internet. ipv4 . ip_forward = 1
+Salve e feche o arquivo quando terminar. Em seguida, aplique as novas configurações executando o seguinte comando:
+
+sysctl -p
+Etapa 2: Instalar o Servidor OpenVPN
+Você pode instalar o servidor OpenVPN executando o seguinte comando:
+
+apt-get install openvpn -y
+Depois que a instalação estiver concluída, inicie o serviço OpenVPN e ative-o na inicialização com o seguinte comando:
+
+systemctl start openvpn @ server
+systemctl enable openvpn @ server
+Depois de terminar, você pode prosseguir para a próxima etapa.
+
+Etapa 3: instalar e configurar o EasyRSA
+Primeiro, você precisará instalar o EasyRSA para gerar todos os certificados. Você pode instalar o EasyRSA com o seguinte comando:
+
+apt-get install easy-rsa -y
+Em seguida, você precisará copiar o diretório EasyRSA para / etc / openvpn /. Você pode fazer isso com o seguinte comando:
+
+cp -r / usr / share / easy-rsa / etc / openvpn /
+Em seguida, altere o diretório para / etc / openvpn / easy-rsaw om o seguinte comando:
+
+cd / etc / openvpn / easy-rsa
+Em seguida, abra o arquivo vars e modifique-o conforme a sua localização:
+
+nano vars
+Faça as seguintes alterações:
+
+exportar KEY_COUNTRY = "ÍNDIA"
+exportar KEY_PROVINCE = "CA"
+exportar KEY_CITY = "Ahmedabad"
+exportar KEY_ORG = "Snel"
+exportar KEY_EMAIL = "hitjethva@gmail.com"
+exportar KEY_OU = "VPN"
+Salve e feche o arquivo. Em seguida, gere o certificado e a chave da Autoridade de Certificação (CA) com o seguinte comando:
+
+vars de origem
+./limpar tudo
+./build-ca
+Forneça todas as informações conforme mostrado abaixo:
+
+Gerando uma chave privada RSA de 2048 bits
+......... +++
+.................. +++
+escrevendo nova chave privada em 'ca.key'
+-----
+Você está prestes a inserir informações que serão incorporadas
+na sua solicitação de certificado.
+O que você está prestes a inserir é o que é chamado de Nome Distinto ou DN.
+Existem alguns campos, mas você pode deixar em branco
+Para alguns campos, haverá um valor padrão,
+Se você digitar '.' , o campo será deixado em branco.
+-----
+Nome do país ( código de 2 letras ) [ ÍNDIA ] :  
+string é muito longa, ela precisa ter no máximo 2 bytes
+Nome do país ( código de 2 letras ) [ ÍNDIA ] : IN  
+Nome do estado ou província ( nome completo ) [ CA ] : CA  
+Nome da localidade ( por exemplo, cidade ) [ Ahmedabad ] :  
+Nome da organização ( por exemplo, empresa ) [ Snel ] :  
+Nome da unidade organizacional ( por exemplo, seção ) [ VPN ] :  
+Nome comum ( por exemplo, seu nome ou o nome do host do seu servidor ) [ Snel CA ] : servidor  
+Nome [ EasyRSA ] :
+Endereço de email [ hitjethva @ gmail. com ] :
+Em seguida, gere um certificado e uma chave privada para o servidor com o seguinte comando:
+
+servidor ./build-key-server
+Você deve ver a seguinte saída:
+
+Gerando uma chave privada RSA de 2048 bits
+............ +++
+............ +++
+escrevendo nova chave privada em 'server.key'
+-----
+Você está prestes a inserir informações que serão incorporadas
+na sua solicitação de certificado.
+O que você está prestes a inserir é o que é chamado de Nome Distinto ou DN.
+Existem alguns campos, mas você pode deixar em branco
+Para alguns campos, haverá um valor padrão,
+Se você digitar '.' , o campo será deixado em branco.
+-----
+Nome do país ( código de 2 letras ) [ ÍNDIA ] : IN  
+Nome do estado ou província ( nome completo ) [ CA ] :  
+Nome da localidade ( por exemplo, cidade ) [ Ahmedabad ] :  
+Nome da organização ( por exemplo, empresa ) [ Snel ] :  
+Nome da unidade organizacional ( por exemplo, seção ) [ VPN ] :  
+Nome comum ( por exemplo, seu nome ou o nome do host do seu servidor ) [servidor]: 
+Nome [EasyRSA]:
+Endereço de e-mail [hitjethva@gmail.com]:
+Digite os seguintes atributos ' extras '
+para ser enviado com sua solicitação de certificado
+Uma senha de desafio []:
+Um nome opcional da empresa []: Snel
+Usando a configuração de /etc/openvpn/easy-rsa/openssl.cnf
+Não é possível abrir / etc / openvpn / easy-rsa / keys / index. txt . attr para leitura, nenhum arquivo ou diretório 
+140584598217152 : erro: 02001002 : biblioteca do sistema: fopen: Esse arquivo ou diretório não existe: ../ crypto / bio / bss_file. c : 74 : fopen ( 'https://keycdn.snel.com/etc/openvpn/easy-rsa/keys/index.txt.attr' , 'r' )
+140584598217152 : erro: 2006D080: rotinas BIO: BIO_new_file: não existe esse arquivo: ../ crypto / bio / bss_file. c : 81 :
+Verifique se a solicitação corresponde à assinatura
+Assinatura ok
+O Nome Distinto do Assunto é o seguinte
+countryName: PRINTABLE: ' IN '
+stateOrProvinceName: PRINTABLE: ' CA '
+localityName: PRINTABLE: ' Ahmedabad '
+organizationName: PRINTABLE: ' Snel '
+organizacionalUnitName: PRINTABLE: ' VPN '
+commonName: PRINTABLE: ' server '
+nome: IMPRESSÍVEL : ' EasyRSA '
+emailAddress: IA5STRING: ' hitjethva @ gmail. com '
+O certificado deve ser certificado até 30 de abril 15 : 08 : 34 2029 GMT ( 3650 dias )    
+Assinar o certificado? [s / n ] : y
+1 fora de 1 solicitações de certificado certificados, cometer? [s / n ] y 
+Escreva o banco de dados com 1 novas entradas 
+Base de dados atualizada
+Em seguida, você precisará criar uma chave Diffie-Hellman forte para usar durante a troca de chaves. Você pode fazer isso com o seguinte comando:
+
+chaves ls /
+Resultado:
+
+ca. crt   ca. chave   dh2048.   índice pem .   índice txt . txt . attr   index. txt .   serial serial antigo .   servidor antigo .   servidor de crt .   servidor csr . chave
+Em seguida, gere ta.key secreto com o seguinte comando:
+
+openvpn --genkey --secret ta. chave
+Em seguida, copie todos os arquivos de certificado em / etc / openvpn / diretório com o seguinte comando:
+
+chaves de cd
+servidor cp. servidor de crt . chave ca. crt dh2048. pem / etc / openvpn /
+cp / etc / openvpn / easy-rsa / ta. chave / etc / openvpn /
+Em seguida, você precisará gerar arquivos de certificado do cliente para o seu servidor. Você pode fazer isso com o seguinte comando:
+
+cd / etc / openvpn / easy-rsa /
+vars de origem
+./build-key client
+Você deve ver a seguinte saída:
+
+Gerando uma chave privada RSA de 2048 bits
+....................... +++
+............... +++
+escrevendo nova chave privada em 'client.key'
+-----
+Você está prestes a inserir informações que serão incorporadas
+na sua solicitação de certificado.
+O que você está prestes a inserir é o que é chamado de Nome Distinto ou DN.
+Existem alguns campos, mas você pode deixar em branco
+Para alguns campos, haverá um valor padrão,
+Se você digitar '.' , o campo será deixado em branco.
+-----
+Nome do país ( código de 2 letras ) [ ÍNDIA ] : IN  
+Nome do estado ou província ( nome completo ) [ CA ] :  
+Nome da localidade ( por exemplo, cidade ) [ Ahmedabad ] :  
+Nome da organização ( por exemplo, empresa ) [ Snel ] :  
+Nome da unidade organizacional ( por exemplo, seção ) [ VPN ] :  
+Nome comum ( por exemplo, seu nome ou o nome do host do seu servidor ) [cliente]: 
+Nome [EasyRSA]:
+Endereço de e-mail [hitjethva@gmail.com]:
+Digite os seguintes atributos ' extras '
+para ser enviado com sua solicitação de certificado
+Uma senha de desafio []:
+Um nome opcional da empresa []: Snel
+Usando a configuração de /etc/openvpn/easy-rsa/openssl.cnf
+Verifique se a solicitação corresponde à assinatura
+Assinatura ok
+O Nome Distinto do Assunto é o seguinte
+countryName: PRINTABLE: 'IN'
+stateOrProvinceName: PRINTABLE: 'CA'
+localityName: PRINTABLE: 'Ahmedabad'
+organizationName: PRINTABLE: 'Snel'
+organizacionalUnitName: PRINTABLE: 'VPN'
+commonName: PRINTABLE: 'client'
+nome: IMPRESSÍVEL : 'EasyRSA'
+emailAddress: IA5STRING: 'hitjethva@gmail.com'
+O certificado deve ser certificado até 30 de abril 15 : 17 : 30 2029 GMT ( 3650 dias )    
+Assinar o certificado? [s / n ] : y
+1 fora de 1 solicitações de certificado certificados, cometer? [s / n ] y 
+Escreva o banco de dados com 1 novas entradas 
+Base de dados atualizada
+Depois que todos os certificados de servidor e cliente forem gerados, você poderá prosseguir para a próxima etapa.
+
+Etapa 4: Configurar o OpenVPN
+Seus certificados de servidor e cliente estão prontos, é hora de configurar o serviço OpenVPN para usar todos os certificados que você criou anteriormente.
+
+Para fazer isso, copie um arquivo de configuração de amostra do OpenVPN para / etc / openvpn / diretório:
+
+cp / usr / share / doc / openvpn / examples / sample-config-files / server. conf . gz / etc / openvpn /
+Em seguida, extraia o arquivo de configuração com o seguinte comando:
+
+gzip -d / etc / openvpn / server. conf . gz
+Em seguida, você precisará editar / etc / openvpn / server. conf e faça algumas alterações:
+
+nano / etc / openvpn / server. conf
+Faça as seguintes alterações:
+
+tls-auth ta. chave 0 
+direção da tecla 0
+cifra AES- 256 -CBC
+auth SHA256
+dh dh2048. pem
+usuário ninguém
+grupo nogroup
+push "redirecionar-gateway def1 bypass-dhcp"
+pressione "dhcp-option DNS 208.67.222.222"
+pressione "dhcp-option DNS 208.67.220.220"
+ca ca. crt
+servidor cert. crt
+servidor de chaves. chave
+Salve e feche o arquivo. Em seguida, reinicie o serviço OpenVPN para aplicar todas as alterações:
+
+systemctl restart openvpn @ server
+Você pode verificar o status do servidor OpenVPN com o seguinte comando:
+
+status systemctl openvpn @ server
+Resultado:
+
+● openvpn @ server. service - conexão OpenVPN ao servidor
+   Carregado: carregado ( /lib/systemd/system/openvpn@.service; desativado; predefinição de fornecedor: ativada ) 
+   Ativo: ativo ( em execução ) desde Sex 2019 - 05 - 03 21 : 19 : 02 IST; 40s atrás  
+     Documentos: man: openvpn ( 8 )
+           https : //community.openvpn.net/openvpn/wiki/Openvpn24ManPage
+           https : //community.openvpn.net/openvpn/wiki/HOWTO
+PID principal: 3581 ( openvpn ) 
+   Status: "Sequência de inicialização concluída"
+    Tarefas: 1 ( limite: 1111 ) 
+   CGroup: / sistema. fatia / sistema-openvpn. fatia / openvpn @ server. serviço
+           35─ 3581 / usr / sbin / openvpn - daemon ovpn-server - status / run / openvpn / server. status 10 --cd / etc / openvpn --script-security 2 --config 
+03 de maio 21 : 19 : 02 ubuntu1804 ovpn-server [ 3581 ] : Não foi possível determinar o protocolo IPv4 / IPv6. Usando AF_INET 
+03 de maio 21 : 19 : 02 ubuntu1804 ovpn-server [ 3581 ] : Buffers de soquete: R = [ 212992 - > 212992 ] S = [ 212992 - > 212992 ] 
+03 de maio 21 : 19 : 02 ubuntu1804 ovpn-server [ 3581 ] : local do link UDPv4 ( encadernado ) : [ AF_INET ] [ undef ] : 1194  
+03 de maio 21 : 19 : 02 ubuntu1804 ovpn-server [ 3581 ] : Link UDPv4 remoto: [ AF_UNSPEC ] 
+03 de maio 21 : 19 : 02 ubuntu1804 ovpn-server [ 3581 ] : GID definido como nogroup 
+03 de maio 21 : 19 : 02 ubuntu1804 ovpn-server [ 3581 ] : UID definido como ninguém 
+03 de maio 21 : 19 : 02 ubuntu1804 ovpn-server [ 3581 ] : MULTI: multi_init chamado, r = 256 v = 256 
+03 de maio 21 : 19 : 02 ubuntu1804 ovpn-server [ 3581 ] : IFCONFIG POOL: base = 10.8 . 0 . 4 tamanho = 62 , ipv6 = 0 
+03 de maio 21 : 19 : 02 ubuntu1804 ovpn-server [ 3581 ] : IFCONFIG POOL LIST 
+03 de maio 21 : 19 : 02 ubuntu1804 ovpn-server [ 3581 ] : Sequência de inicialização concluída 
+Etapa 5: Instalar e configurar o Openvpn Client
+Primeiro, efetue login na máquina do cliente e instale o OpenVPN com o seguinte comando:
+
+apt-get install openvpn -y <
+Em seguida, copie o arquivo de configuração do cliente de amostra para / etc / openvpn  di reitoria com o comando seguinte:
+
+cp / usr / share / doc / openvpn / examples / sample-config-files / client. conf / etc / openvpn /
+Em seguida, copie todos os arquivos de certificado do cliente do servidor OpenVPN para a máquina cliente com o seguinte comando:
+
+raiz scp @ 192.168 . 0 . 101 : / etc / openvpn / easy-rsa / keys / ca. crt / etc / openvpn /
+raiz scp @ 192.168 . 0 . 101 : / etc / openvpn / easy-rsa / keys / client. chave / etc / openvpn /
+raiz scp @ 192.168 . 0 . 101 : / etc / openvpn / easy-rsa / keys / client. crt / etc / openvpn /
+raiz scp @ 192.168 . 0 . 101 : / etc / openvpn / ta. chave / etc / openvpn /
+Em seguida, abra o arquivo client.conf e defina o endereço IP do servidor e o certificado do cliente:
+
+nano / etc / openvpn / client. conf
+Faça as seguintes alterações:
+
+cliente
+192.168 remoto . 0 . 101 1194 
+usuário ninguém
+grupo nogroup
+ca ca. crt
+cliente cert. crt
+cliente-chave. chave
+tls-auth ta. chave 1 
+Salve e feche o arquivo. Em seguida, inicie o serviço do cliente OpenVPN com o seguinte comando:
+
+systemctl start openvpn @ client
+Agora, você pode ver o novo endereço IP recebido do servidor OpenVPN com o seguinte comando:
+
+ifconfig
+Resultado:
+
+lo Encap do link: Loopback local  
+          endereço inet: 127.0 . 0.1   Máscara: 255.0 . 0 . 0 0
+          inet6 addr: :: 1 / 128 Âmbito: host
+          UP LOOPBACK EM FUNCIONAMENTO MTU: 65536   Métrico: 1
+          Pacotes RX: 2528 erros: 0 eliminados: 0 excedentes: 0 quadro: 0
+          Pacotes TX: 2528 erros: 0 eliminados: 0 excedentes: 0 transportadora: 0
+          colisões: 0 txqueuelen: 0 
+          Bytes RX: 228962 ( 228,9 KB )   Bytes TX: 228962 ( 228,9 KB )  
+tun0 Encap do link: UNSPEC HWaddr 00 - 00 - 00 - 00 - 00 - 00 - 00 - 00 - 00 - 00 - 00 - 00 - 00 - 00 - 00 - 00 - 00  
+          endereço inet: 10.8 . 0 . 6   PtP: 10,8 . 0 . 5   Máscara: 255.255 . 255 . 255
+          UP POINTOPOINT EM FUNCIONAMENTO NOARP MULTICAST MTU: 1500   Métrico: 1
+          Pacotes RX: 0 erros: 0 eliminados: 0 excedentes: 0 quadro: 0
+          Pacotes TX: 100 erros: 0 eliminados: 0 excedentes: 0 transportadora: 0
+          colisões: 0 txqueuelen: 100 
+          RX bytes: 0 ( 0 . 0 B )   TX bytes: 6681 ( 6 . 6 KB )  
+          
+          https://www.snel.com/support/how-to-create-a-vpn-on-ubuntu-18-04-with-openvpn/
